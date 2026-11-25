@@ -9,6 +9,7 @@ from psycopg.types.json import Jsonb
 
 import domain
 from core import CACHE, db
+from effects import StaleRevision
 
 HEARTBEAT = Path("/tmp/yangyang-worker-heartbeat")
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +34,12 @@ def process(connection):
         log.info("Completed job %s (%s)", job["id"], job["kind"])
     except Exception as exc:
         log.exception("Job %s failed", job["id"])
-        detail = str(exc.detail) if isinstance(exc, HTTPException) else "后台计算失败，请核对输入后重试"
+        if isinstance(exc, HTTPException):
+            detail = str(exc.detail)
+        elif isinstance(exc, StaleRevision):
+            detail = "该计算任务对应旧版成绩，更正后已失效，不能恢复签批资格"
+        else:
+            detail = "后台计算失败，请核对输入后重试"
         connection.execute(
             "UPDATE app_jobs SET status='failed',error=%s,finished_at=now() WHERE id=%s",
             (detail, job["id"]),

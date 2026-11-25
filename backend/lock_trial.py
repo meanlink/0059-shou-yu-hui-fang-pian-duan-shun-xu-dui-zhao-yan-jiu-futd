@@ -14,5 +14,8 @@ def lock(cx,code):
             raise HTTPException(409,"每水平、每回放版本至少需要两份有效答题")
         if any(r["score"] is None for r in eligible):
             raise HTTPException(409,"请完成已分配学员的成绩再冻结，避免对照失衡")
-    cx.execute("UPDATE sign_trials SET state='frozen' WHERE code=%s",(code,))
-    return {"job_id":enqueue(cx,"sign_order_permutation",{"code":code})}
+    cx.execute("UPDATE sign_trials SET state='frozen' WHERE code=%s", (code,))
+    revision = case(cx, code)["revision"]
+    return {"job_id": enqueue(
+        cx, "sign_order_permutation", {"code": code, "revision": revision},
+    ), "revision": revision}
