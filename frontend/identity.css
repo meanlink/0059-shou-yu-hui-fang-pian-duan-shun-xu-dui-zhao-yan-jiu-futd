@@ -1,0 +1,4 @@
+:root{--s-page:oklch(95% .036 53);--s-panel:oklch(98% .015 57);--s-accent:oklch(37% .12 320);--s-ink:oklch(24% .045 320)}
+.replay-strip{display:flex;gap:.6rem;padding:.8rem;flex-wrap:wrap;background:var(--s-panel);border-block:2px solid var(--s-accent)}
+.replay-strip span{padding:.55rem .7rem;border:1px solid var(--s-line);flex:1}
+.editor-note{max-width:45rem;border-top:3px solid var(--s-accent);padding:1rem;background:var(--s-panel)}
